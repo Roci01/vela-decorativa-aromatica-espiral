@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Formulario Vela</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #fff8f0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #a14a76;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    input[type="text"], input[type="number"], select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-top: 5px;
+      font-size: 1rem;
+    }
+
+    .color-options {
+      display: flex;
+      margin-top: 10px;
+      gap: 10px;
+    }
+
+    .color-circle {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      box-shadow: 0 0 3px rgba(0,0,0,0.3);
+    }
+
+    .color-circle.selected {
+      border: 2px solid #000;
+    }
+
+    .submit-button {
+      width: 100%;
+      margin-top: 25px;
+      padding: 12px;
+      background-color: #a14a76;
+      color: white;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .submit-button:hover {
+      background-color: #8c3a63;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Personaliza tu Vela</h2>
+    <form id="velaForm">
+      <label>Producto:</label>
+      <input type="text" id="producto" value="Vela decorativa y aromática de espiral" readonly />
+
+      <label>Aroma:</label>
+      <select id="aroma">
+        <option value="Vainilla">Vainilla</option>
+        <option value="Menta">Menta</option>
+        <option value="Eucalipto">Eucalipto</option>
+      </select>
+
+      <label>Color:</label>
+      <div class="color-options" id="colorOptions">
+        <div class="color-circle" style="background-color: pink;" data-color="Rosado"></div>
+        <div class="color-circle" style="background-color: white; border: 1px solid #aaa;" data-color="Blanco"></div>
+        <div class="color-circle" style="background-color: red;" data-color="Rojo"></div>
+        <div class="color-circle" style="background-color: blue;" data-color="Azul"></div>
+        <div class="color-circle" style="background-color: yellow;" data-color="Amarillo"></div>
+      </div>
+      <input type="hidden" id="color" />
+
+      <label>Cantidad (1–10):</label>
+      <input type="number" id="cantidad" min="1" max="10" />
+
+      <label>Tu nombre:</label>
+      <input type="text" id="nombre" />
+
+      <button type="button" class="submit-button" onclick="enviarWhatsapp()">Enviar por WhatsApp</button>
+    </form>
+  </div>
+
+  <script>
+    var colorCircles = document.querySelectorAll('.color-circle');
+    var colorInput = document.getElementById('color');
+
+    colorCircles.forEach(function(circle) {
+      circle.addEventListener('click', function() {
+        colorCircles.forEach(function(c) {
+          c.classList.remove('selected');
+        });
+        circle.classList.add('selected');
+        colorInput.value = circle.getAttribute('data-color');
+      });
+    });
+
+    function enviarWhatsapp() {
+      var producto = document.getElementById('producto').value.trim();
+      var aroma = document.getElementById('aroma').value.trim();
+      var color = document.getElementById('color').value.trim();
+      var cantidad = document.getElementById('cantidad').value.trim();
+      var nombre = document.getElementById('nombre').value.trim();
+
+      if (!color) {
+        alert("Selecciona un color.");
+        return;
+      }
+      if (!cantidad || cantidad < 1 || cantidad > 10) {
+        alert("Ingresa una cantidad válida.");
+        return;
+      }
+      if (!nombre) {
+        alert("Ingresa tu nombre.");
+        return;
+      }
+
+      var mensaje = "Hola, quiero hacer un pedido de velas:\n\n"
+        + "Producto: " + producto + "\n"
+        + "Aroma: " + aroma + "\n"
+        + "Color: " + color + "\n"
+        + "Cantidad: " + cantidad + "\n"
+        + "Nombre: " + nombre;
+
+      var url = "https://wa.me/5353810462?text=" + encodeURIComponent(mensaje);
+      window.open(url, "_blank");
+    }
+  </script>
+</body>
+</html>
