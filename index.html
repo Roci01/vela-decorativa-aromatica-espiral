@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Formulario Vela</title>
+  <title>Personaliza tu vela</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -75,17 +75,26 @@
     .submit-button:hover {
       background-color: #8c3a63;
     }
+
+    #precio {
+      margin-top: 25px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      text-align: center;
+      color: #333;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>Personaliza tu Vela</h2>
+    <h2>Personaliza tu vela</h2>
     <form id="velaForm">
       <label>Producto:</label>
-      <input type="text" id="producto" value="Vela decorativa y aromática de espiral" readonly />
+      <input type="text" id="producto" value="Vela decorativa espiral" readonly />
 
       <label>Aroma:</label>
-      <select id="aroma">
+      <select id="aroma" onchange="actualizarPrecio()">
+        <option value="Sin aroma" selected>Sin aroma</option>
         <option value="Vainilla">Vainilla</option>
         <option value="Menta">Menta</option>
         <option value="Eucalipto">Eucalipto</option>
@@ -107,6 +116,8 @@
       <label>Tu nombre:</label>
       <input type="text" id="nombre" />
 
+      <div id="precio">Precio: 1,200 CUP</div>
+
       <button type="button" class="submit-button" onclick="enviarWhatsapp()">Enviar por WhatsApp</button>
     </form>
   </div>
@@ -114,23 +125,34 @@
   <script>
     var colorCircles = document.querySelectorAll('.color-circle');
     var colorInput = document.getElementById('color');
+    var aromaSelect = document.getElementById('aroma');
+    var precioDiv = document.getElementById('precio');
+
+    const precioSinAroma = 1200;
+    const precioConAroma = 1500;
 
     colorCircles.forEach(function(circle) {
       circle.addEventListener('click', function() {
-        colorCircles.forEach(function(c) {
-          c.classList.remove('selected');
-        });
+        colorCircles.forEach(c => c.classList.remove('selected'));
         circle.classList.add('selected');
         colorInput.value = circle.getAttribute('data-color');
       });
     });
 
+    function actualizarPrecio() {
+      const aroma = aromaSelect.value;
+      precioDiv.textContent = aroma === "Sin aroma"
+        ? "Precio: 1,200 CUP"
+        : "Precio: 1,500 CUP";
+    }
+
     function enviarWhatsapp() {
       var producto = document.getElementById('producto').value.trim();
-      var aroma = document.getElementById('aroma').value.trim();
+      var aroma = aromaSelect.value.trim();
       var color = document.getElementById('color').value.trim();
       var cantidad = document.getElementById('cantidad').value.trim();
       var nombre = document.getElementById('nombre').value.trim();
+      var precioFinal = aroma === "Sin aroma" ? precioSinAroma : precioConAroma;
 
       if (!color) {
         alert("Selecciona un color.");
@@ -146,15 +168,19 @@
       }
 
       var mensaje = "Hola, quiero hacer un pedido de velas:\n\n"
-        + "Producto: " + producto + "\n"
-        + "Aroma: " + aroma + "\n"
-        + "Color: " + color + "\n"
-        + "Cantidad: " + cantidad + "\n"
-        + "Nombre: " + nombre;
+        + "🕯️ Producto: " + producto + "\n"
+        + "🌸 Aroma: " + aroma + "\n"
+        + "🎨 Color: " + color + "\n"
+        + "🔢 Cantidad: " + cantidad + "\n"
+        + "👤 Nombre: " + nombre + "\n"
+        + "💰 Precio por unidad: " + precioFinal + " CUP";
 
       var url = "https://wa.me/5353810462?text=" + encodeURIComponent(mensaje);
       window.open(url, "_blank");
     }
+
+    // Mostrar precio correcto al cargar la página
+    window.onload = actualizarPrecio;
   </script>
 </body>
 </html>
