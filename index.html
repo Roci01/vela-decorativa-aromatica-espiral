@@ -112,29 +112,39 @@
 
       <label>Color:</label>
       <div class="color-options" id="colorOptions">
-        <div class="color-circle" style="background-color: pink;" data-color="Rosado"></div>
-        <div class="color-circle" style="background-color: white; border: 1px solid #aaa;" data-color="Blanco"></div>
+        <div class="color-circle" style="background-color: #90EE90;" data-color="Verde claro"></div>
+        <div class="color-circle" style="background-color: #f66b92;" data-color="Rosado suave"></div>
+        <div class="color-circle" style="background-color: #ff3855;" data-color="Rojo neón"></div>
+        <div class="color-circle" style="background-color: #3f00ff;" data-color="Azul Ultramarino"></div>
+        <div class="color-circle" style="background-color: #fe59c2;" data-color="Fucsia"></div>
+        <div class="color-circle" style="background-color: #ffa500;" data-color="Naranja"></div>
+        <div class="color-circle" style="background-color: #bf00ff;" data-color="Púrpura"></div>
+        <div class="color-circle" style="background-color: #ffd67b;" data-color="Amarillo pastel"></div>
+        <div class="color-circle" style="background-color: #a3989d;" data-color="Lila grisáceo"></div>
         <div class="color-circle" style="background-color: red;" data-color="Rojo"></div>
-        <div class="color-circle" style="background-color: blue;" data-color="Azul"></div>
-        <div class="color-circle" style="background-color: yellow;" data-color="Amarillo"></div>
       </div>
       <input type="hidden" id="color" />
 
       <label>¿Deseas empaque especial de regalo?</label>
       <select id="empaqueRegalo" onchange="actualizarPrecio()">
         <option value="estandar" selected>No, gracias (bolsita estándar)</option>
-        <option value="Caja kraft">Caja kraft (+100 CUP)</option>
-        <option value="Caja plateada">Caja plateada (+320 CUP)</option>
+        <option value="Caja kraft">Caja kraft (+120 CUP)</option>
+        <option value="Caja plateada">Caja plateada (+280 CUP)</option>
       </select>
 
       <label>Cantidad (1–10):</label>
-      <input type="number" id="cantidad" min="1" max="10" />
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <button type="button" onclick="cambiarCantidad(-1)" style="padding: 5px 10px;">−</button>
+        <input type="number" id="cantidad" min="1" max="10" value="1" style="text-align: center; width: 60px;" />
+        <button type="button" onclick="cambiarCantidad(1)" style="padding: 5px 10px;">+</button>
+      </div>
 
       <label>Tu nombre:</label>
       <input type="text" id="nombre" />
 
-      <div id="precio">Precio: 1,200 CUP</div>
-
+      <div id="precioUnidad">Precio por unidad: 1,500 CUP</div>
+      <div id="precioTotal">Precio total: 1,500 CUP</div>
+      
       <button type="button" class="submit-button" onclick="enviarWhatsapp()">Enviar por WhatsApp</button>
     </form>
   </div>
@@ -146,10 +156,10 @@
     var precioDiv = document.getElementById('precio');
     var empaqueSelect = document.getElementById('empaqueRegalo');
 
-    const precioSinAroma = 1200;
-    const precioConAroma = 1500;
-    const precioKraft = 100;
-    const precioPlateada = 320;
+    const precioSinAroma = 1100;
+    const precioConAroma = 1450;
+    const precioKraft = 120;
+    const precioPlateada = 280;
 
     colorCircles.forEach(function(circle) {
       circle.addEventListener('click', function() {
@@ -162,51 +172,82 @@
     function actualizarPrecio() {
       const aroma = aromaSelect.value;
       const empaque = empaqueSelect.value;
-      let base = aroma === "Sin aroma" ? precioSinAroma : precioConAroma;
-
-      if (empaque === "Caja kraft") base += precioKraft;
-      else if (empaque === "Caja plateada") base += precioPlateada;
-
-      precioDiv.textContent = "Precio: " + base + " CUP";
+      const cantidad = parseInt(document.getElementById('cantidad').value || 1, 10);
+    
+      // Precio base solo según aroma (sin incluir empaque)
+      let precioUnidad = aroma === "Sin aroma" ? precioSinAroma : precioConAroma;
+    
+      // Precio extra por empaque
+      let extraEmpaque = 0;
+      if (empaque === "Caja kraft") extraEmpaque = precioKraft;
+      else if (empaque === "Caja plateada") extraEmpaque = precioPlateada;
+    
+      // Total = (precio unidad × cantidad) + precio empaque
+      const total = (precioUnidad * cantidad) + extraEmpaque;
+    
+      document.getElementById("precioUnidad").textContent = "💰 Precio por unidad: " + precioUnidad + " CUP";
+      document.getElementById("precioTotal").textContent = "💵 Precio total: " + total + " CUP";
     }
+    
+    function cambiarCantidad(delta) {
+      var input = document.getElementById('cantidad');
+      var value = parseInt(input.value || 1, 10);
+      var min = parseInt(input.min, 10);
+      var max = parseInt(input.max, 10);
+    
+      var nuevoValor = value + delta;
+      if (nuevoValor >= min && nuevoValor <= max) {
+        input.value = nuevoValor;
+        actualizarPrecio();
+      }
+    }
+
 
     function enviarWhatsapp() {
-      var producto = document.getElementById('producto').value.trim();
-      var aroma = aromaSelect.value.trim();
-      var color = document.getElementById('color').value.trim();
-      var cantidad = document.getElementById('cantidad').value.trim();
-      var nombre = document.getElementById('nombre').value.trim();
-      var empaque = empaqueSelect.value.trim();
-
-      if (!color) {
-        alert("Selecciona un color.");
-        return;
+        var producto = document.getElementById('producto').value.trim();
+        var aroma = aromaSelect.value.trim();
+        var color = document.getElementById('color').value.trim();
+        var cantidad = parseInt(document.getElementById('cantidad').value.trim(), 10);
+        var nombre = document.getElementById('nombre').value.trim();
+        var empaque = empaqueSelect.value.trim();
+      
+        if (!color) {
+          alert("Selecciona un color.");
+          return;
+        }
+        if (!cantidad || cantidad < 1 || cantidad > 10) {
+          alert("Ingresa una cantidad válida.");
+          return;
+        }
+        if (!nombre) {
+          alert("Ingresa tu nombre.");
+          return;
+        }
+      
+        // Solo el precio de la vela (con o sin aroma)
+        var precioUnidad = aroma === "Sin aroma" ? precioSinAroma : precioConAroma;
+      
+        // Suma del empaque
+        var extraEmpaque = 0;
+        if (empaque === "Caja kraft") extraEmpaque = precioKraft;
+        else if (empaque === "Caja plateada") extraEmpaque = precioPlateada;
+      
+        // Total final
+        var precioTotal = (precioUnidad * cantidad) + extraEmpaque;
+      
+        var mensaje = "Hola, quiero hacer un pedido de velas:\n\n"
+          + "🕯️ Producto: " + producto + "\n"
+          + "🌸 Aroma: " + aroma + "\n"
+          + "🎨 Color: " + color + "\n"
+          + "🎁 Empaque: " + empaque + "\n"
+          + "🔢 Cantidad: " + cantidad + "\n"
+          + "👤 Nombre: " + nombre + "\n"
+          + "💰 Precio por unidad: " + precioUnidad + " CUP"
+          + "\n💵 Precio total: " + precioTotal + " CUP";
+      
+        var url = "https://wa.me/5353810462?text=" + encodeURIComponent(mensaje);
+        window.open(url, "_blank");
       }
-      if (!cantidad || cantidad < 1 || cantidad > 10) {
-        alert("Ingresa una cantidad válida.");
-        return;
-      }
-      if (!nombre) {
-        alert("Ingresa tu nombre.");
-        return;
-      }
-
-      var precioBase = aroma === "Sin aroma" ? precioSinAroma : precioConAroma;
-      if (empaque === "Caja kraft") precioBase += precioKraft;
-      else if (empaque === "Caja plateada") precioBase += precioPlateada;
-
-      var mensaje = "Hola, quiero hacer un pedido de velas:\n\n"
-        + "🕯️ Producto: " + producto + "\n"
-        + "🌸 Aroma: " + aroma + "\n"
-        + "🎨 Color: " + color + "\n"
-        + "🎁 Empaque: " + empaque + "\n"
-        + "🔢 Cantidad: " + cantidad + "\n"
-        + "👤 Nombre: " + nombre + "\n"
-        + "💰 Precio por unidad: " + precioBase + " CUP";
-
-      var url = "https://wa.me/5353810462?text=" + encodeURIComponent(mensaje);
-      window.open(url, "_blank");
-    }
 
     window.onload = actualizarPrecio;
   </script>
